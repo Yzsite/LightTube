@@ -1,0 +1,87 @@
+version: '3.7'
+
+services:
+  lighttube:
+    image: kuylar/lighttube:latest
+    restart: unless-stopped
+    depends_on:
+      - database
+    ports:
+      # Replace 7134 with whichever port you want to connect from
+      - 127.0.0.1:7134:80 
+    environment:
+      # (Required) MongoDB Database Connection String
+      - LIGHTTUBE_MONGODB_CONNSTR=mongodb://lighttube:lighttube@database:27017/
+      # (Optional) MongoDB Database
+      - LIGHTTUBE_MONGODB_DATABASE=lighttube
+      
+      # (Optional) These will be the texts shown in the home page,
+      # chosen randomly from an array
+      # Must be a JSON array
+      # Default: ["Search something to get started!"]
+      - LIGHTTUBE_MOTD=["Search something to get started!"]
+      
+      # (Optional) This is a dismissable message shown on top of
+      # all pages
+      # - LIGHTTUBE_ALERT=
+      
+      # (Optional) Amount of video player data to hold in the cache
+      # Default: 50
+      - LIGHTTUBE_CACHE_SIZE=50
+      
+      # (Optional) Default theme for the interface. Either "light", "dark" or "auto"
+      # Default: auto
+      - LIGHTTUBE_DEFAULT_THEME=auto
+      
+      # (Optional) Disable the video API used for third party apps
+      # Default: false
+      - LIGHTTUBE_DISABLE_API=false
+      
+      # (Optional) Disable the OAuth API used for third party apps
+      # Default: false
+      - LIGHTTUBE_DISABLE_OAUTH=false
+      
+      # (Optional) Disable new users from signing up
+      # Default: false
+      - LIGHTTUBE_DISABLE_REGISTRATION=false
+      
+      # (Optional) Disable the video proxy
+      # Enable this if you don't want videos to be proxied over LightTube
+      # This will also disable HLS/DASH playback on browsers
+      # Default: false
+      - LIGHTTUBE_DISABLE_PROXY=false
+
+      # (Optional) Enable video proxy for 3rd party apps
+      # Apps may or may not choose to follow this setting
+      # Default: true
+      - LIGHTTUBE_ENABLE_THIRD_PARTY_PROXY=true
+      
+      # (Optional) Default content language (only effects video title/descriptions,
+      # "### views"/"### subscribers"/"Published # days ago" text on search results etc.)
+      # WARNING: An invalid value may cause LightTube to not work. Make sure you put in a 
+      #          valid language ID
+      # Default: en
+      - LIGHTTUBE_DEFAULT_CONTENT_LANGUAGE=en
+      # (Optional) Default content region (only effects the browse screen. search results
+      # and recommendations still use the region that the server connects YouTube from)
+      # WARNING: An invalid value may cause LightTube to not work. Make sure you put in a 
+      #          valid region ID
+      # Default: US
+      - LIGHTTUBE_DEFAULT_CONTENT_REGION=US
+      
+      # (Optional) Authentication for age-gated videos
+      # Follow the following wiki page to get the required values
+      # https://github.com/kuylar/InnerTube/wiki/Authorization
+      - LIGHTTUBE_AUTH_TYPE=oauth2     # Required
+      - LIGHTTUBE_AUTH_REFRESH_TOKEN=  # Your refresh token. Should start with "1//"
+
+  database:
+    image: mongo
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: lighttube
+      MONGO_INITDB_ROOT_PASSWORD: lighttube
+    # Recommended: Put the MongoDB files somewhere in your local drive
+    # so you can copy them to somewhere else if you ever need to
+    volumes:
+      - ./mongo:/data/db
