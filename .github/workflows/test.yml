@@ -12,4 +12,4 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: compose
-        run: docker compose -f Compose.yml --env-file .env.test up -d
+        run: docker compose -f Compose.yml
